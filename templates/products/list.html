@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <a href="/products/create">Crear nou registre</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Descripció</th>
+                <th>Imatge</th>
+                <th>Preu</th>
+                <th>ID Categoria</th>
+                <th>Vendedor</th>
+                <th>Creado</th>
+                <th>Actualizado</th>
+                <th colspan="2"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result['id'] }}</td>
+                <td>{{ result['nom'] }}</td>
+                <td>{{ result['descripcio'] }}</td>
+                <td>{{ result['imatge'] }}</td>
+                <td>{{ result['preu'] }}</td>
+                <td>{{ result['idcat'] }}</td>
+                <td>{{ result['vendedor'] }}</td>
+                <td>{{ result['creado'] }}</td>
+                <td>{{ result['actualizado'] }}</td>
+                <td><a class="action" href="/products/read/{{ result['id'] }}" title="Veure">👁️</a></td>
+                <td><a class="action" href="/products/update/{{ result['id'] }}" title="Editar">📋</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+</body>
+
+</html>
