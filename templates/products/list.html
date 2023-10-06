@@ -25,20 +25,20 @@
             </tr>
         </thead>
         <tbody>
-            {% for result in results %}
+            {% for (product, categoria) in results %}
             <tr>
-                <td>{{ result['id'] }}</td>
-                <td>{{ result['nom'] }}</td>
-                <td>{{ result['descripcio'] }}</td>
-                <td>{{ result['imatge'] }}</td>
-                <td>{{ result['preu'] }}</td>
-                <td>{{ result['idcat'] }}</td>
-                <td>{{ result['vendedor'] }}</td>
-                <td>{{ result['creado'] }}</td>
-                <td>{{ result['actualizado'] }}</td>
-                <td><a class="action" href="/products/read/{{ result['id'] }}" title="Veure">Veure</a></td>
-                <td><a class="action" href="/products/update/{{ result['id'] }}" title="Editar">Editar</a></td>
-                <td><a class="action" href="/products/delete/{{ result['id'] }}" title="Eliminar">Eliminar</a></td>
+                <td>{{ product.id }}</td>
+                <td>{{ product.title }}</td>
+                <td>{{ product.description }}</td>
+                <td>{{ product.photo }}</td>
+                <td>{{ product.price }}</td>
+                <td>{{ categoria.name }}</td>
+                <td>{{ product.seller_id }}</td>
+                <td>{{ product.created.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+                <td>{{ product.updated.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+                <td><a class="action" href="/products/read/{{ product.id }}" title="Veure">Veure</a></td>
+                <td><a class="action" href="/products/update/{{ product.id }}" title="Editar">Editar</a></td>
+                <td><a class="action" href="/products/delete/{{ product.id }}" title="Eliminar">Eliminar</a></td>
             </tr>
             {% endfor %}
         </tbody>

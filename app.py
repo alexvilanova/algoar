@@ -1,139 +1,71 @@
-from flask import Flask,render_template,url_for,request,redirect,flash
+from flask import Flask, render_template, redirect, url_for, request, flash
+import os
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 from werkzeug.utils import secure_filename
-import sqlite3
-import datetime,os
-
-DATABASE = 'database.db'
-UPLOAD_FOLDER = '/uploads'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+basedir = os.path.abspath(os.path.dirname(__file__)) 
+# Definimos secret key para poder enviar flash
+app.secret_key = 'secretkey'
+
+# SUBIDA DE IMAGENES
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+def allowed_file(photoname):
+    return '.' in photoname and photoname.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def get_db():
-    db = getattr(Flask, '_database', None)
-    if db is None:
-        db = Flask._database = sqlite3.connect(DATABASE,check_same_thread=False)
-    return db
+# paràmetre que farà servir SQLAlchemy per a connectar-se
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + basedir + "/database.db"
+# mostre als logs les ordres SQL que s'executen
+app.config["SQLALCHEMY_ECHO"] = True
 
-def close_connection(exception):
-    db = getattr(Flask, '_database', None)
-    if db is not None:
-        db.close()
+# Inicio SQLAlchemy
+db = SQLAlchemy()
+db.init_app(app)
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+# Crear clases de tablas
+class Category(db.Model):
+    __tablename__ = 'categories'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, unique=True)
+    slug = db.Column(db.Text, unique=True)
 
-@app.route('/prueba', methods=['GET', 'POST'])
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, unique=True)
+    email = db.Column(db.Text, unique=True)
+    password = db.Column(db.Text)
+    created = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
-@app.route('/prueba', methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('download_file', name=filename))
-    return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    '''
+class Product(db.Model):
+    __tablename__ = 'products'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text)
+    description = db.Column(db.Text)
+    photo = db.Column(db.Text)
+    price = db.Column(db.DECIMAL(10, 2))
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    seller_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
 
 @app.route("/")
 def inicio():
     return render_template('hello.html')        
 
-
-
 @app.route("/products/list")
 def list_products():
-    query = "SELECT * FROM PRODUCTS"
-    cursor = get_db().execute(query)
-    result = cursor.fetchall()
-    datos = []
-    for x in result:
-        data = {
-        'id': x[0],
-        'nom': x[1],
-        'descripcio': x[2],
-        'imatge': x[3],
-        'preu': x[4],
-        'idcat': x[5],
-        'vendedor': x[6],
-        'creado': x[7],
-        'actualizado': x[8],
-        }
-        datos.append(data)
-    cursor.close()
-    return render_template('products/list.html',results=datos)
+    lista = db.session.query(Product, Category).join(Category).order_by(Product.id.asc()).all()
+    return render_template('products/list.html',results=lista)
 
-# FUNCIÓN PARA LEER INFO CATEGORIAS
-def mostrar_cat():
-    cursor = get_db().execute("SELECT * FROM CATEGORIES")
-    result = cursor.fetchall()
-    data = []
-    for x in result:
-        datos = {
-            'id': x[0],
-            'nom': x[1],
-            'slug': x[2]
-        }
-        data.append(datos)
-    cursor.close()
-    return data
-
-# FUNCIÓN LEER INFORMACIÓN PRODUCTO
-def read_product(id):
-    mydb = get_db()
-    data=[]
-    mycursor = mydb.cursor()
-    sql = ("SELECT * FROM products where id = ?")
-    val=(id,)
-    mycursor.execute(sql, val)
-    result = mycursor.fetchall()
-    for x in result:
-        data = {
-        'id': x[0],
-        'nom': x[1],
-        'descripcio': x[2],
-        'imatge': x[3],
-        'preu': x[4],
-        'idcat': x[5],
-        'vendedor': x[6],
-        'creado': x[7],
-        'actualizado': x[8],
-        }
-    mycursor.close()
-    return data
-
-# FUNCIÓN PARA MOSTRAR NOMBRE CATEGORIA A PARTIR DE ID
-def mostrar_nomcat(idcat):
-    listacat = mostrar_cat()
-    for categoria in listacat:
-        if categoria['id'] == idcat:
-            return categoria['nom']
-
-# FUNCIÓN PARA VALIDAR CADENA DE ENTRADA 
+# # FUNCIÓN PARA VALIDAR CADENA DE ENTRADA 
 errores = []
 def validar_cadena(campo, valor):
     if len(valor) < 1:
@@ -143,107 +75,89 @@ def validar_cadena(campo, valor):
         flash(f"{campo} no pot superar els 255 caràcters.")
         errores.append("2")
     elif campo == 'Categoria':
-        categorias = mostrar_cat()
-        idcategorias = [i['id'] for i in categorias]
-        if int(valor) not in idcategorias:
-            flash(f"{campo} no s'ha seleccionat un valor correcte")
+        categories = [category.id for category in Category.query.all()]  # Obtén todas las categorías
+        app.logger.info(categories)
+        if int(valor) not in categories:
+            flash(f"{campo} no s'ha seleccionat una categoria correcte")
             errores.append("error")
         
 
 @app.route('/products/create', methods=["GET", "POST"])
 def product_create():
     if request.method == 'GET':
-        # guardamos la lista de categorias en data
-        data = mostrar_cat()
-        # Enviamos a página create
-        return render_template('products/create.html',datos = data)
+        categories = db.session.query(Category).order_by(Category.id.asc()).all()
+        return render_template('products/create.html', categories=categories)
     elif request.method == 'POST':
-        data =  request.form
-        mydb = get_db()
-        nom = data.get('nom')
-        desc = data.get('desc')
-        img = data.get('img')
-        preu = data.get('preu')
-        cat = data.get('cat')
-        seller = '1' #Seller Temporal
-        dia = datetime.datetime.now()
-        data_actual = dia.strftime("%Y-%m-%d %H:%M:%S")
-        
-        validar_cadena("Nom", nom)
-        validar_cadena("Descripcio", desc)
-        validar_cadena("Preu", preu)
-        validar_cadena("Categoria", cat)
+        data = request.form
+        product = Product()
+        product.title = data.get('title')
+        product.description = data.get('description')
+        photo = request.files['photo']
+        product.price = data.get('price')
+        product.category_id = data.get('category_id')
+        product.created = datetime.now()
+        product.updated = datetime.now()
 
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('download_file', name=filename))
+        if photo and allowed_file(photo.filename):
+            filename = secure_filename(photo.filename)
+            photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        product.photo = filename
+
+        validar_cadena("Nom", product.title)
+        validar_cadena("Descripcio", product.description)
+        validar_cadena("Preu", product.price)
+        validar_cadena("Categoria", product.category_id)
 
         if errores:
             errores.clear()
             return redirect(request.url)
         else:
-            lista = [nom, desc, img, preu, cat, seller, data_actual, data_actual]
-            query = "INSERT INTO PRODUCTS (title, description, photo, price, category_id, seller_id, created, updated) \
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-            cursor = get_db().execute(query, lista) 
-            mydb.commit()
+            db.session.add(product)
+            db.session.commit()
             return redirect(url_for('list_products'))
 
 @app.route('/products/update/<int:id>', methods=["GET", "POST"])
 def products_update(id):
+    (product, category) = db.session.query(Product, Category).join(Category).filter(Product.id == id).one()
     if request.method == 'GET':
-        cat = mostrar_cat()
-        data = read_product(id)
-        nomcat = mostrar_nomcat(data['idcat'])
-        return render_template('products/update.html', resource=data, categorias=cat, nom_categorias=nomcat)
+        categories = db.session.query(Category).filter(Category.id != product.category_id).order_by(Category.id.asc()).all()
+        return render_template('products/update.html', product=product, categories=categories, category=category)
     elif request.method == 'POST':
         data = request.form
-        nom = data.get('nom')
-        desc = data.get('desc')
-        img = data.get('img')
-        preu = data.get('preu')
-        cat = data.get('cat')
-        dia = datetime.datetime.now()
-        data_actual = dia.strftime("%Y-%m-%d %H:%M:%S")
+        product.title = data.get('title')
+        product.description = data.get('description')
+        product.photo = data.get('photo')
+        product.price = data.get('price')
+        product.category_id = data.get('category_id')
+        product.updated = datetime.now()
         
-        validar_cadena("Nom", nom)
-        validar_cadena("Descripcio", desc)
-        validar_cadena("Preu", preu)
-        validar_cadena("Categoria", cat)
+        validar_cadena("Nom", product.title)
+        validar_cadena("Descripcio", product.description)
+        validar_cadena("Preu", product.price)
+        validar_cadena("Categoria", product.category_id)
 
         if errores:
             errores.clear()
             return redirect(request.url)
         else:
-            mydb = get_db()
-            query = ("UPDATE PRODUCTS SET title = ?, description = ?, photo = ?, price = ?, category_id = ?, updated = ? where id = ?")
-            mydb.execute(query, (nom, desc, img, preu, cat, data_actual, id))
-            mydb.commit()
+            db.session.add(product)
+            db.session.commit()
             return redirect(url_for('list_products'))
 
 
 @app.route('/products/read/<int:id>')
 def products_read(id):
-    data = read_product(id)
-    nomcat = mostrar_nomcat(data['idcat'])
-    return render_template('products/read.html',resource=data,nombre_categoria=nomcat)
+    (product, category) = db.session.query(Product, Category).join(Category).filter(Product.id == id).one()
+    return render_template('products/read.html', product = product, category = category)
 
-@app.route('/products/delete/<int:id>')
+@app.route('/products/delete/<int:id>',methods = ['GET', 'POST'])
 def products_delete(id):
-    mydb = get_db()
-    query = ("DELETE FROM PRODUCTS where id = ?")
-    val=(id,)
-    mydb.execute(query, val)
-    mydb.commit()
-    return redirect(url_for('list_products'))
+    item = db.session.query(Product).filter(Product.id == id).one()
+
+    if request.method == 'GET':
+        return render_template('products/delete.html', item = item)
+    else:
+        db.session.delete(item)
+        db.session.commit()
+        return redirect(url_for('list_products'))

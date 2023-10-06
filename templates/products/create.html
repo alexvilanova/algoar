@@ -9,29 +9,29 @@
 <body>
     <fieldset>
         <legend>Nou producte</legend>
-        <form method="POST" action="/prueba">
+        <form method="POST" action="/products/create" enctype="multipart/form-data">
             <div class="form-row">
-                <label for="nom">NOM<span>*</span></label>
-                <input type="text" id="nom" name="nom"></input>
+                <label for="title">NOM<span>*</span></label>
+                <input type="text" id="title" name="title"></input>
             </div>
             <div class="form-row">
-                <label for="desc">DESCRIPCIO<span>*</span></label>
-                <input type="text" id="desc" name="desc"></input>
+                <label for="description">DESCRIPCIO<span>*</span></label>
+                <input type="text" id="description" name="description"></input>
             </div>
             <div class="form-row">
-                <label for="img">IMATGE<span>*</span></label>
-                <input type="file" id="img" name="img"></input>
+                <label for="photo">IMATGE<span>*</span></label>
+                <input type="file" id="photo" name="photo"></input>
             </div>
             <div class="form-row">
-                <label for="preu">PREU<span>*</span></label>
-                <input type="number" id="preu" name="preu"></input>
+                <label for="price">PREU<span>*</span></label>
+                <input type="number" id="price" name="price"></input>
             </div>
             <div class="form-row">
-                <label for="cat">Categoria<span>*</span></label>
-                <select name="cat"  id="cat">
+                <label for="category_id">Categoria<span>*</span></label>
+                <select name="category_id"  id="category_id">
                     <option value="">Categoria</option>
-                    {% for data in datos %}
-                    <option value="{{ data['id'] }}">{{ data['nom'] }}</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
                     {% endfor %}
                 </select>
             </div> 

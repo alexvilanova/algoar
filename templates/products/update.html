@@ -2,36 +2,36 @@
 <html lang="en">
 
 <head>
-    <title>Editar producte - {{ resource['nom'] }}</title>
+    <title>Editar producte - {{ product.title }}</title>
     <link rel="stylesheet" href="/static/create.css">
 </head>
 
 <body>
     <fieldset>
-        <legend>Editar producte - {{ resource['nom'] }}</legend>
-        <form method="POST" action="/products/update/{{ resource['id'] }}">
+        <legend>Editar producte - {{ product.title }}</legend>
+        <form method="POST" action="/products/update/{{ product.id }}">
             <div class="form-row">
-                <label for="nom">NOM<span>*</span></label>
-                <input type="text" value="{{ resource['nom'] }}" id="nom" name="nom"></input>
+                <label for="title">NOM<span>*</span></label>
+                <input type="text" value="{{ product.title }}" id="title" name="title"></input>
             </div>
             <div class="form-row">
-                <label for="desc">DESCRIPCIO<span>*</span></label>
-                <input type="text" value="{{ resource['descripcio'] }}" id="desc" name="desc"></input>
+                <label for="description">DESCRIPCIO<span>*</span></label>
+                <input type="text" value="{{ product.description }}" id="description" name="description"></input>
             </div>
             <div class="form-row">
-                <label for="img">IMATGE<span>*</span></label>
-                <input type="file" value="{{ resource['imatge'] }}" id="img" name="img"></input>
+                <label for="photo">IMATGE<span>*</span></label>
+                <input type="file" value="{{ product.photo }}" id="photo" name="photo"></input>
             </div>
             <div class="form-row">
-                <label for="preu">PREU<span>*</span></label>
-                <input type="number" value="{{ resource['preu'] }}" id="preu" name="preu"></input>
+                <label for="price">PREU<span>*</span></label>
+                <input type="number" value="{{ product.price }}" id="price" name="price"></input>
             </div>
             <div class="form-row">
-                <label for="cat">Categoria<span>*</span></label>
-                <select name="cat" id="cat">
-                    <option value="{{ resource['idcat'] }}">{{nom_categorias}}</option>
-                    {% for categoria in categorias %}
-                    <option value="{{ categoria['id'] }}">{{ categoria['nom'] }}</option>
+                <label for="category_id">Categoria<span>*</span></label>
+                <select name="category_id" id="category_id">
+                    <option value="{{ product.category_id }}">{{category.name}}</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
                     {% endfor %}
                 </select>
             </div>

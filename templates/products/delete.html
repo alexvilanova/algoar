@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Borrado</title>
+    <link rel="stylesheet" href="/static/delete.css"> <!-- Si tienes un archivo de estilo CSS -->
+</head>
+
+<body>
+    <div class="confirmation-container">
+        <h1>Confirmación de Borrado</h1>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>NOM</th>
+                <th>DESCRIPCIO</th>
+                <th>IMATGE</th>
+                <th>PREU</th>
+                <th>VENDEDOR</th>
+                <th>F. CREADO</th>
+                <th>F. ACTUALIZADO</th>
+
+            </tr>
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.title }}</td>
+                <td>{{ item.description }}</td>
+                <td>{{ item.photo }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.seller_id }}</td>
+                <td>{{ item.created.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+                <td>{{ item.updated.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+            </tr>
+        </table>
+        <form action="/products/delete/{{ item.id }}" method="POST">
+            <label>
+                <input type="checkbox" id="cbox1" required value="confirmar" />
+                <span>¿Estás seguro de que deseas borrar este elemento?
+                </span>
+            </label>
+            <button type="submit" class="btn-confirmar-borrado">Eliminar</button>
+            <a href="{{url_for('list_products')}}" class="btn-cancelar-borrado">Cancelar</a>
+        </form>
+    </div>
+</body>
+
+</html>

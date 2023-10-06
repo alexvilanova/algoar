@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veure producte - {{ resource['nom'] }}</title>
+    <title>Veure producte - {{ product.title }}</title>
     <link rel="stylesheet" href="/static/read.css">
 </head>
 
 <body>
-    <h1>{{ resource['nom'] }}</h1>
+    <h1>{{ product.title }}</h1>
     <table border="1">
         <tr>
             <th>ID</th>
@@ -24,16 +24,16 @@
 
         </tr>
         <tr>
-            <td>{{ resource['id'] }}</td>
-            <td>{{ resource['nom'] }}</td>
-            <td>{{ resource['descripcio'] }}</td>
-            <td>{{ resource['imatge'] }}</td>
-            <td>{{ resource['preu'] }}</td>
-            <td>{{ nombre_categoria }}</td>
-            <td>{{ resource['vendedor'] }}</td>
-            <td>{{ resource['creado'] }}</td>
-            <td>{{ resource['actualizado'] }}</td>
-        </tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.title }}</td>
+            <td>{{ product.description }}</td>
+            <td>{{ product.photo }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ category.name }}</td>
+            <td>{{ product.seller_id }}</td>
+            <td>{{ product.created.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+            <td>{{ product.updated.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+</tr>
     </table>
     <a href="javascript:history.back()" title="Pagina anterior">Tornar</a>
 
