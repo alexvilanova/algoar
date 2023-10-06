@@ -3,16 +3,16 @@
 
 <head>
     <title>Crear nou producte</title>
-    <link rel="stylesheet" href="../../static/css/empleats.css">
+    <link rel="stylesheet" href="/static/create.css">
 </head>
 
 <body>
     <fieldset>
         <legend>Nou producte</legend>
-        <form method="POST" action="/products/create">
+        <form method="POST" action="/prueba">
             <div class="form-row">
                 <label for="nom">NOM<span>*</span></label>
-                <input type="text" id="nom" name="nom" required></input>
+                <input type="text" id="nom" name="nom"></input>
             </div>
             <div class="form-row">
                 <label for="desc">DESCRIPCIO<span>*</span></label>
@@ -28,7 +28,7 @@
             </div>
             <div class="form-row">
                 <label for="cat">Categoria<span>*</span></label>
-                <select name="cat"  id="cat" required>
+                <select name="cat"  id="cat">
                     <option value="">Categoria</option>
                     {% for data in datos %}
                     <option value="{{ data['id'] }}">{{ data['nom'] }}</option>
@@ -38,7 +38,16 @@
             <button type="submit">Crear</button>
         </form>
     </fieldset>
-    <a href="javascript:history.back()" title="Pagina anterior">Tornar</a>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <a href="{{url_for('list_products')}}" title="Pagina anterior">Tornar</a>
 </body>
 
 </html>

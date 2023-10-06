@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veure producte - {{ resource['nom'] }}</title>
+    <link rel="stylesheet" href="/static/read.css">
+</head>
+
+<body>
+    <h1>{{ resource['nom'] }}</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>NOM</th>
+            <th>DESCRIPCIO</th>
+            <th>IMATGE</th>
+            <th>PREU</th>
+            <th>CATEGORIA</th>
+            <th>VENDEDOR</th>
+            <th>F. CREADO</th>
+            <th>F. ACTUALIZADO</th>
+
+        </tr>
+        <tr>
+            <td>{{ resource['id'] }}</td>
+            <td>{{ resource['nom'] }}</td>
+            <td>{{ resource['descripcio'] }}</td>
+            <td>{{ resource['imatge'] }}</td>
+            <td>{{ resource['preu'] }}</td>
+            <td>{{ nombre_categoria }}</td>
+            <td>{{ resource['vendedor'] }}</td>
+            <td>{{ resource['creado'] }}</td>
+            <td>{{ resource['actualizado'] }}</td>
+        </tr>
+    </table>
+    <a href="javascript:history.back()" title="Pagina anterior">Tornar</a>
+
+</body>
+
+</html>
+
+
+</body>
+
+</html>

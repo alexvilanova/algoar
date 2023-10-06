@@ -2,43 +2,53 @@
 <html lang="en">
 
 <head>
-    <title>Crear nou producte</title>
-    <link rel="stylesheet" href="../../static/css/empleats.css">
+    <title>Editar producte - {{ resource['nom'] }}</title>
+    <link rel="stylesheet" href="/static/create.css">
 </head>
 
 <body>
     <fieldset>
-        <legend>Nou producte</legend>
-        <form method="POST" action="/products/create">
+        <legend>Editar producte - {{ resource['nom'] }}</legend>
+        <form method="POST" action="/products/update/{{ resource['id'] }}">
             <div class="form-row">
                 <label for="nom">NOM<span>*</span></label>
-                <input type="text" id="nom" name="nom" required></input>
+                <input type="text" value="{{ resource['nom'] }}" id="nom" name="nom"></input>
             </div>
             <div class="form-row">
                 <label for="desc">DESCRIPCIO<span>*</span></label>
-                <input type="text" id="desc" name="desc"></input>
+                <input type="text" value="{{ resource['descripcio'] }}" id="desc" name="desc"></input>
             </div>
             <div class="form-row">
                 <label for="img">IMATGE<span>*</span></label>
-                <input type="file" id="img" name="img"></input>
+                <input type="file" value="{{ resource['imatge'] }}" id="img" name="img"></input>
             </div>
             <div class="form-row">
                 <label for="preu">PREU<span>*</span></label>
-                <input type="number" id="preu" name="preu"></input>
+                <input type="number" value="{{ resource['preu'] }}" id="preu" name="preu"></input>
             </div>
             <div class="form-row">
                 <label for="cat">Categoria<span>*</span></label>
-                <select name="cat"  id="cat" required>
-                    <option value="">Categoria</option>
-                    {% for data in datos %}
-                    <option value="{{ data['id'] }}">{{ data['nom'] }}</option>
+                <select name="cat" id="cat">
+                    <option value="{{ resource['idcat'] }}">{{nom_categorias}}</option>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria['id'] }}">{{ categoria['nom'] }}</option>
                     {% endfor %}
                 </select>
-            </div> 
-            <button type="submit">Crear</button>
+            </div>
+            <button type="submit">Editar</button>
         </form>
     </fieldset>
-    <a href="javascript:history.back()" title="Pagina anterior">Tornar</a>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    
+      <a href="{{url_for('list_products')}}" title="Pagina anterior">Tornar</a>
 </body>
 
 </html>
