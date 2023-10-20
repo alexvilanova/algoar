@@ -42,6 +42,9 @@ th, td {
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
+tbody th, tbody td {
+    border: 1px solid grey;
+}
 
 th {
     background-color: #007bff;
@@ -62,6 +65,7 @@ tr:nth-child(even) {
     text-align: center;
     text-decoration: none;
     cursor: pointer;
+    align-content: center;
 }
 
 .action:hover {
@@ -71,3 +75,28 @@ tr:nth-child(even) {
     margin: 0;
     padding: 20px;
 }
+thead th:last-child {
+    text-align: center;
+}
+
+ul.flashes {
+    list-style-type: none;
+    padding: 10px;
+    background-color: #f44336; 
+    color: #fff;
+    border: 1px solid #d32f2f;
+    border-radius: 4px;
+    text-align: center;
+}
+
+ul.flashes li {
+    margin: 5px 0;
+}
+
+ul.flashes li {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+
+

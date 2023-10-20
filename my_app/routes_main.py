@@ -19,18 +19,19 @@ def allowed_file(photoname):
 
 # # FUNCIÓN PARA VALIDAR CADENA DE ENTRADA 
 errores = []
-def validar_cadena(campo, valor):
+def validar_campos(campo, valor):
     if len(valor) < 1:
         flash(f"{campo} no pot estar buit.")
-        errores.append("1")
+        errores.append("error")
     elif len(valor) > 255:
         flash(f"{campo} no pot superar els 255 caràcters.")
-        errores.append("2")
+        errores.append("error")
     elif campo == 'Categoria':
         categories = [category.id for category in Category.query.all()]  # Obtén todas las categorías
         if int(valor) not in categories:
             flash(f"{campo} no s'ha seleccionat una categoria correcte")
             errores.append("error")
+
             
 @main_bp.route("/")
 def inicio():
@@ -47,34 +48,39 @@ def product_create():
         categories = db.session.query(Category).order_by(Category.id.asc()).all()
         return render_template('products/create.html', categories=categories)
     elif request.method == 'POST':
-        data = request.form
-        product = Product()
-        product.title = data.get('title')
-        product.description = data.get('description')
-        photo = request.files['photo']
-        product.price = data.get('price')
-        product.category_id = data.get('category_id')
-        product.created = datetime.now()
-        product.updated = datetime.now()
+        try:
+            data = request.form
+            product = Product()
+            product.title = data.get('title')
+            product.description = data.get('description')
+            product.price = data.get('price')
+            product.photo = data.get('photo')
+            product.category_id = data.get('category_id')
+            product.created = datetime.now()
+            product.updated = datetime.now()
 
-        if photo and allowed_file(photo.filename):
-            filename = secure_filename(photo.filename)
-            photo.save(os.path.join(main_bp.config['UPLOAD_FOLDER'], filename))
-            product.photo = filename
+            if product.photo:
+                photo = request.files['photo']
+                if allowed_file(photo.filename):
+                    filename = secure_filename(photo.filename)
+                    photo.save(os.path.join(main_bp.config['UPLOAD_FOLDER'], filename))
 
-        validar_cadena("Nom", product.title)
-        validar_cadena("Descripcio", product.description)
-        validar_cadena("Preu", product.price)
-        validar_cadena("Categoria", product.category_id)
-
-        if errores:
-            errores.clear()
-            return redirect(request.url)
-        else:
-            db.session.add(product)
-            db.session.commit()
+            validar_campos("Nom", product.title)
+            validar_campos("Descripcio", product.description)
+            validar_campos("Preu", product.price)
+            validar_campos("Categoria", product.category_id)
+            
+            if errores:
+                errores.clear()
+                return redirect(request.url)
+            else:
+                db.session.add(product)
+                db.session.commit()
+                return redirect(url_for('main_bp.list_products'))
+        except Exception as error:
+            flash(f"Error al crear  producto: {str(error)}")
             return redirect(url_for('main_bp.list_products'))
-        
+
 @main_bp.route('/products/update/<int:id>', methods=["GET", "POST"])
 def products_update(id):
     (product, category) = db.session.query(Product, Category).join(Category).filter(Product.id == id).one()
@@ -82,38 +88,47 @@ def products_update(id):
         categories = db.session.query(Category).filter(Category.id != product.category_id).order_by(Category.id.asc()).all()
         return render_template('products/update.html', product=product, categories=categories, category=category)
     elif request.method == 'POST':
-        data = request.form
-        product.title = data.get('title')
-        product.description = data.get('description')
-        product.photo = data.get('photo')
-        product.price = data.get('price')
-        product.category_id = data.get('category_id')
-        product.updated = datetime.now()
-        
-        
-        if product.photo:
-            photo = request.files['photo']
-            if photo and allowed_file(photo.filename):
-                filename = secure_filename(photo.filename)
-                photo.save(os.path.join(main_bp.config['UPLOAD_FOLDER'], filename))
+        try:
+            data = request.form
+            product.title = data.get('title')
+            product.description = data.get('description')
+            product.photo = data.get('photo')
+            product.price = data.get('price')
+            product.category_id = data.get('category_id')
+            product.updated = datetime.now()
+            
+            
+            if product.photo:
+                photo = request.files['photo']
+                if allowed_file(photo.filename):
+                    filename = secure_filename(photo.filename)
+                    photo.save(os.path.join(main_bp.config['UPLOAD_FOLDER'], filename))
 
-        validar_cadena("Nom", product.title)
-        validar_cadena("Descripcio", product.description)
-        validar_cadena("Preu", product.price)
-        validar_cadena("Categoria", product.category_id)
+            validar_campos("Nom", product.title)
+            validar_campos("Descripcio", product.description)
+            validar_campos("Preu", product.price)
+            validar_campos("Categoria", product.category_id)
 
-        if errores:
-            errores.clear()
-            return redirect(request.url)
-        else:
-            db.session.add(product)
-            db.session.commit()
-            return redirect(url_for('main_bp.list_products'))
-        
+            if errores:
+                errores.clear()
+                return redirect(request.url)
+            else:
+                db.session.add(product)
+                db.session.commit()
+                return redirect(url_for('main_bp.list_products'))
+        except Exception as error:
+                flash(f"Error al actualizar  producto: {str(error)}")
+                return redirect(url_for('main_bp.list_products'))
+
 @main_bp.route('/products/read/<int:id>')
 def products_read(id):
-    (product, category) = db.session.query(Product, Category).join(Category).filter(Product.id == id).one()
-    return render_template('products/read.html', product = product, category = category)
+    try:
+
+        (product, category) = db.session.query(Product, Category).join(Category).filter(Product.id == id).one()
+        return render_template('products/read.html', product = product, category = category)
+    except Exception as error:
+        flash(f"Error al mostrar producto: {str(error)}")
+        return redirect(url_for('main_bp.list_products'))
 
 @main_bp.route('/products/delete/<int:id>',methods = ['GET', 'POST'])
 def products_delete(id):
@@ -122,6 +137,10 @@ def products_delete(id):
     if request.method == 'GET':
         return render_template('products/delete.html', item = item)
     else:
-        db.session.delete(item)
-        db.session.commit()
-        return redirect(url_for('main_bp.list_products'))
+        try:
+            db.session.delete(item)
+            db.session.commit()
+            return redirect(url_for('main_bp.list_products'))
+        except Exception as error:
+            flash(f"Error al eliminar producto: {str(error)}")
+            return redirect(url_for('main_bp.list_products'))
